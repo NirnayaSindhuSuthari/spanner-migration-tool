@@ -207,12 +207,17 @@ func (isi InfoSchemaImpl) GetColumns(conv *internal.Conv, table common.SchemaAnd
 			ignored.AutoIncrement = true
 		}
 		colId := internal.GenerateColumnId()
+		defaulVal := ""
+		if colDefault.Valid {
+			defaulVal=colDefault.String
+		}
 		c := schema.Column{
 			Id:      colId,
 			Name:    colName,
 			Type:    toType(dataType, columnType, charMaxLen, numericPrecision, numericScale),
 			NotNull: common.ToNotNull(conv, isNullable),
 			Ignored: ignored,
+			Default: defaulVal,
 		}
 		colDefs[colId] = c
 		colIds = append(colIds, colId)
