@@ -11,11 +11,15 @@
       <mat-option *ngFor="let table of tableNames" [value]="table">{{ table }}</mat-option>
     </mat-select>
   </mat-form-field>
+<<<<<<< HEAD
   
+=======
+>>>>>>> cefd0a347ccab28f22d23307c555954e547a2df8
   <mat-form-field appearance="outline">
     <mat-label>Index Name</mat-label>
     <input matInput class="input-field" formControlName="indexName" />
     <mat-hint >
+<<<<<<< HEAD
       
       <div class="container"  style="display: inline;">
         <!-- <mat-icon matPrefix style="color: white;">
@@ -28,6 +32,13 @@
         <a  href="https://cloud.google.com/spanner/docs/reference/standard-sql/data-definition-language#naming_conventions">More Details</a> 
       </div>
       </mat-hint>
+=======
+      <div class="container"  style="display: inline;">
+        Max. 128 characters, and starts with a letter.
+        <a href="https://cloud.google.com/spanner/docs/reference/standard-sql/data-definition-language#naming_conventions">More Details</a> 
+      </div>
+    </mat-hint>
+>>>>>>> cefd0a347ccab28f22d23307c555954e547a2df8
     <mat-hint align="end">{{ addIndexForm.value.indexName?.length || 0 }}/128</mat-hint>
   </mat-form-field>
   <ng-container formArrayName="ColsArray" class="addcol-form">
