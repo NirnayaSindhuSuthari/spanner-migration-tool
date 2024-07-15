@@ -12,6 +12,7 @@
   align-items: center;
   justify-content: center;
   flex-direction: column;
+
   .image {
     margin: 20px;
   }
@@ -22,15 +23,18 @@
   justify-content: space-between;
   padding: 10px 0px 10px 20px;
   border-bottom: 1px solid #cccccc;
+
   .title {
     display: flex;
     align-items: flex-start;
     margin-bottom: 0;
     margin-left: 0px;
+
     .icon {
       margin-right: 20px;
       color: #757575;
     }
+
     .drop {
       margin-left: 10px;
       color: #1967d2;
@@ -39,14 +43,17 @@
       align-items: center;
     }
   }
+
   .interleaved-title {
     display: flex;
+
     .interleave-parent-name {
       margin-left: 4px;
       text-decoration: underline;
     }
   }
 }
+
 .interleave-parent-table {
   font-weight: bold;
 }
@@ -54,9 +61,11 @@
 .table {
   height: 100%;
   background-color: white;
+
   .mat-mdc-tab-group {
     height: 93%;
   }
+
   .height-on-edit {
     height: 84%;
   }
@@ -65,17 +74,21 @@
 .add-index-column-container {
   margin-left: 45%;
   padding-top: 10px;
+
   .index-column-list {
     margin-right: 1rem;
   }
 }
+
 .add-pk-column,
 .add-column {
   margin-left: 50%;
   padding: 10px;
+
   .column-list {
     width: 40%;
   }
+
   .index-column-order {
     margin-right: 1rem;
   }
@@ -98,6 +111,7 @@
     align-items: flex-start;
     max-width: 50%;
   }
+
   table {
     width: 100%;
   }
@@ -132,6 +146,7 @@
     padding: 7px 5px;
     width: auto;
   }
+
   input.ng-invalid.ng-touched {
     border: 1px solid red;
   }
@@ -156,9 +171,11 @@
   .spanner_edit-button {
     display: flex;
     align-items: center;
+
     button {
       background-color: inherit;
       border: none;
+
       .edit-icon {
         color: #3367d6;
         font-size: 1.1rem;
@@ -190,8 +207,8 @@
   .mat-column-srcColMaxLength {
     min-width: 100px;
   }
-  
-  .mat-column-spSequenceKind{
+
+  .mat-column-spSequenceKind {
     min-width: 250px;
   }
 
@@ -200,15 +217,58 @@
     min-width: 100px;
   }
 
-  .mat-column-srcIsNotNull,
+  .mat-column-srcDefaultValue,
   .mat-column-srcReferColumns,
   .mat-column-srcDatabase,
   .mat-column-srcIndexOrder {
     border-right: 1px solid #cdcccd;
   }
+
   .drop-button-left-border {
     border-left: 1px solid #cdcccd;
   }
+
+  // hidden and hover
+  // .slideable-text {
+  //   width: 200px;
+  //   white-space: nowrap;
+  //   overflow: hidden;
+  //   transition: all 0.3s ease-in-out;    
+  // }
+
+  // .slideable-text:hover {
+  //   width: 100%; 
+  // }
+
+  // hidden
+  .trimmed-text {
+    width: 200px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  // scrollable cell
+  // .scroll {
+  //     width: 200px;
+  //     white-space: nowrap;
+  //     overflow: auto;
+  //   }
+
+  // scrollable Default tab
+  // .scrollable {
+  //   width: 200px;
+  //   white-space: nowrap;
+  //   overflow: auto;
+  //   // overflow-x: scroll;
+  //   // overflow-y: hidden;
+  //   text-overflow: ellipsis;
+  // }
+  // .cell {
+  //   width: 200px;
+  //   white-space: nowrap;
+  //   overflow: hidden;
+  // }
 
   .sp-datatype-data-cells {
     display: flex;
@@ -216,6 +276,7 @@
     justify-content: left;
     align-items: center;
     margin-top: 10px;
+
     .material-icons {
       font-size: 18px;
     }
@@ -226,6 +287,7 @@
     }
   }
 }
+
 .index-tab-container {
   .index-data-row {
     height: 41px;
@@ -250,6 +312,7 @@
 
 .save-button {
   width: 100%;
+
   button {
     float: right;
     margin: 5px;
@@ -259,11 +322,13 @@
 .ddl_container {
   padding: 30px;
 }
+
 .border_bottom {
   border: none;
   border-bottom: 1px solid lightgray;
   outline: none;
 }
+
 .centered {
   display: flex;
   align-items: center;
@@ -280,6 +345,7 @@ p {
 .mr10 {
   margin-right: 10px;
 }
+
 .scr-column-data-edit-mode {
   height: 58.3px !important;
 }
@@ -287,6 +353,7 @@ p {
 tr.mat-mdc-row {
   height: 58px;
 }
+
 .mat-mdc-table {
   border: inset;
 }

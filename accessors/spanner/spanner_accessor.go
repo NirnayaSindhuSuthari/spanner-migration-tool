@@ -74,10 +74,49 @@ type SpannerAccessor interface {
 	ValidateDDL(ctx context.Context, adminClient spanneradmin.AdminClient, dbURI string) error
 	// UpdateDDLForeignKeys updates the Spanner database with foreign key constraints using ALTER TABLE statements.
 	UpdateDDLForeignKeys(ctx context.Context, adminClient spanneradmin.AdminClient, dbURI string, conv *internal.Conv, driver string, migrationType string)
+	// IsSpannerSupoorted checks whether the default value from Source database is supported by Spanner or not. 
+	// IsSpannerSupported(defaultval string, columntype string) bool
+	// // firing query to spanner to cast default value based on spanner column type.
+	// query(db string, defaultval string, ty string) error
 }
 
 // This implements the SpannerAccessor interface. This is the primary implementation that should be used in all places other than tests.
 type SpannerAccessorImpl struct{}
+
+// func (sp *SpannerAccessorImpl) IsSpannerSupported(defaultval string, columntype string) bool {
+// 	db := "projects/cloud-spanner-intern/instances/testing-instance/databases/functions_test"
+// 	err := sp.query(db, defaultval, columntype)
+// 	if err != nil {
+// 		return false
+// 	} else {
+// 		return true
+// 	}
+// }
+
+// func (sp *SpannerAccessorImpl) query(db string, defaultval string, ty string) error {
+// 	ctx := context.Background()
+// 	client, err := spanner.NewClient(ctx, db)
+// 	if err != nil {
+// 		return err
+// 	}
+// 	defer client.Close()
+
+// 	stmt := spanner.Statement{
+// 		SQL: "SELECT CAST("+defaultval+" AS "+ty+") AS ConvertedDefaultval",
+// 	}
+// 	iter := client.Single().Query(ctx, stmt)
+// 	defer iter.Stop()
+// 	for {
+// 		_, err := iter.Next()
+// 		if err == iterator.Done {
+// 			return nil
+// 		}
+// 		if err != nil {
+// 			return err
+// 		}
+
+// 	}
+// }
 
 func (sp *SpannerAccessorImpl) GetDatabaseDialect(ctx context.Context, adminClient spanneradmin.AdminClient, dbURI string) (string, error) {
 	result, err := adminClient.GetDatabase(ctx, &databasepb.GetDatabaseRequest{Name: dbURI})

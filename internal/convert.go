@@ -92,6 +92,7 @@ type SchemaIssue int
 // DB constraints) that aren't supported in Spanner.
 const (
 	DefaultValue SchemaIssue = iota
+	SpConfiguration
 	ForeignKey
 	MissingPrimaryKey
 	UniqueIndexPrimaryKey

@@ -192,6 +192,12 @@ func buildTableReportBody(conv *internal.Conv, tableId string, issues map[string
 						Description: fmt.Sprintf("%s for table '%s' e.g. column '%s'", IssueDB[i].Brief, conv.SpSchema[tableId].Name, spColName),
 					}
 					l = append(l, toAppend)
+				case internal.SpConfiguration:
+					toAppend := Issue{
+						Category:    IssueDB[i].Category,
+						Description: fmt.Sprintf("Please configure spanner project id and instance id to proceed. Otherwise Default Values will not be migrated"),
+					}
+					l = append(l, toAppend)
 				case internal.ForeignKey:
 					toAppend := Issue{
 						Category:    IssueDB[i].Category,
@@ -482,6 +488,7 @@ var IssueDB = map[internal.SchemaIssue]struct {
 	CategoryDescription string
 }{
 	internal.DefaultValue:          {Brief: "Some columns have default values which Spanner migration tool does not migrate. Please add the default constraints manually after the migration is complete", severity: note, batch: true, Category: "MISSING_DEFAULT_VALUE_CONSTRAINTS"},
+	internal.SpConfiguration:       {Brief: "Please configure spanner project id and instance id to proceed. Otherwise Default Values will not be migrated", severity: note, Category: "MISSING_SPANNER_CONFIGURATION_DETAILS"},
 	internal.ForeignKey:            {Brief: "Spanner does not support foreign keys", severity: warning, Category: "FOREIGN_KEY_USES"},
 	internal.MultiDimensionalArray: {Brief: "Spanner doesn't support multi-dimensional arrays", severity: warning, Category: "MULTI_DIMENSIONAL_ARRAY_USES"},
 	internal.NoGoodType: {Brief: "No appropriate Spanner type. The column will be made nullable in Spanner", severity: warning, Category: "INAPPROPRIATE_TYPE",

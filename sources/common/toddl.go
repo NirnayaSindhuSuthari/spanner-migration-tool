@@ -34,7 +34,10 @@ import (
 	"reflect"
 	"strconv"
 	"unicode"
-
+	"context"
+	"cloud.google.com/go/spanner"
+	"google.golang.org/api/iterator"
+	// spanneraccessor "github.com/GoogleCloudPlatform/spanner-migration-tool/accessors/spanner"
 	"github.com/GoogleCloudPlatform/spanner-migration-tool/common/constants"
 	"github.com/GoogleCloudPlatform/spanner-migration-tool/internal"
 	"github.com/GoogleCloudPlatform/spanner-migration-tool/schema"
@@ -124,6 +127,22 @@ func (ss *SchemaToSpannerImpl) SchemaToSpannerDDLHelper(conv *internal.Conv, tod
 		if len(issues) > 0 {
 			columnLevelIssues[srcColId] = issues
 		}
+		defaultVal := ddl.DefaultValue{
+			IsPresent:          srcCol.Default.IsPresent,
+			DefaultValue:       srcCol.Default.DefaultValue,
+			// IsSpannerSupported: false,
+		}
+		// if srcCol.Default.IsPresent {
+		// 	defaultVal.IsSpannerSupported = IsSpannerSupported(srcCol.Default.DefaultValue, ty.Name)
+		// }
+		
+		if srcCol.Default.IsPresent {
+			defaultVal.IsPresent = IsSpannerSupported(srcCol.Default.DefaultValue, ty.Name)
+		}
+		// if srcCol.Default.IsPresent {
+		// 	spA := spanneraccessor.SpannerAccessorImpl{}
+		// 	defaultVal.IsPresent = spA.IsSpannerSupported(srcCol.Default.DefaultValue, ty.Name)
+		// }
 
 		spColDef[srcColId] = ddl.ColumnDef{
 			Name:    colName,
@@ -132,9 +151,10 @@ func (ss *SchemaToSpannerImpl) SchemaToSpannerDDLHelper(conv *internal.Conv, tod
 			Comment: "From: " + quoteIfNeeded(srcCol.Name) + " " + srcCol.Type.Print(),
 			Id:      srcColId,
 			AutoGen: ddl.AutoGenCol{
-				Name: "",
+				Name:           "",
 				GenerationType: "",
 			},
+			Default: defaultVal,
 		}
 		if !checkIfColumnIsPartOfPK(srcColId, srcTable.PrimaryKeys) {
 			totalNonKeyColumnSize += getColumnSize(ty.Name, ty.Len)
@@ -158,6 +178,41 @@ func (ss *SchemaToSpannerImpl) SchemaToSpannerDDLHelper(conv *internal.Conv, tod
 		Comment:     comment,
 		Id:          srcTable.Id}
 	return nil
+}
+
+func IsSpannerSupported(defaultval string, columntype string) bool {
+	db := "projects/cloud-spanner-intern/instances/testing-instance/databases/functions_test"
+	err := query(db, defaultval, columntype)
+	if err != nil {
+		return false
+	} else {
+		return true
+	}
+}
+
+func query(db string, defaultval string, ty string) error {
+	ctx := context.Background()
+	client, err := spanner.NewClient(ctx, db)
+	if err != nil {
+		return err
+	}
+	defer client.Close()
+
+	stmt := spanner.Statement{
+		SQL: "SELECT CAST("+defaultval+" AS "+ty+") AS ConvertedDefaultval",
+	}
+	iter := client.Single().Query(ctx, stmt)
+	defer iter.Stop()
+	for {
+		_, err := iter.Next()
+		if err == iterator.Done {
+			return nil
+		}
+		if err != nil {
+			return err
+		}
+
+	}
 }
 
 func quoteIfNeeded(s string) string {

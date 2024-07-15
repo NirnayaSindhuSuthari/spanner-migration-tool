@@ -85,9 +85,9 @@ export class ObjectDetailComponent implements OnInit {
     this.autoGenSupported = autoGenSupportedDbs.includes(this.srcDbName)
   }
 
-  srcDisplayedColumns = ['srcOrder', 'srcColName', 'srcDataType', 'srcColMaxLength', 'srcIsPk', 'srcIsNotNull']
+  srcDisplayedColumns = ['srcOrder', 'srcColName', 'srcDataType', 'srcColMaxLength', 'srcIsPk', 'srcIsNotNull', 'srcDefaultValue']
 
-  spDisplayedColumns = ['spColName', 'spDataType', 'spColMaxLength', 'spIsPk', 'spIsNotNull', 'dropButton']
+  spDisplayedColumns = ['spColName', 'spDataType', 'spColMaxLength', 'spIsPk', 'spIsNotNull', 'spDefaultValue', 'dropButton']
   displayedFkColumns = [
     'srcName',
     'srcColumns',
@@ -245,6 +245,7 @@ export class ObjectDetailComponent implements OnInit {
           srcDataType: new FormControl(row.srcDataType),
           srcIsPk: new FormControl(row.srcIsPk),
           srcIsNotNull: new FormControl(row.srcIsNotNull),
+          srcDefaultValue: new FormControl(row.srcDefaultValue),
           srcColMaxLength: new FormControl(row.srcColMaxLength),
           spOrder: new FormControl(row.srcOrder),
           spColName: new FormControl(row.spColName, [
@@ -254,6 +255,7 @@ export class ObjectDetailComponent implements OnInit {
           spDataType: new FormControl(row.spDataType),
           spIsPk: new FormControl(row.spIsPk),
           spIsNotNull: new FormControl(row.spIsNotNull), spId: new FormControl(row.spId),
+          spDefaultValue: new FormControl(row.spDefaultValue),
           srcId: new FormControl(row.srcId),
           spColMaxLength: new FormControl(row.spColMaxLength, [
             Validators.required]),
@@ -295,12 +297,14 @@ export class ObjectDetailComponent implements OnInit {
             srcDataType: new FormControl(col.srcDataType),
             srcIsPk: new FormControl(col.srcIsPk),
             srcIsNotNull: new FormControl(col.srcIsNotNull),
+            srcDefaultValue: new FormControl(col.srcDefaultValue),
             srcColMaxLength: new FormControl(col.srcColMaxLength),
             spOrder: new FormControl(col.spOrder),
             spColName: new FormControl(col.spColName),
             spDataType: new FormControl(col.spDataType),
             spIsPk: new FormControl(col.spIsPk),
             spIsNotNull: new FormControl(col.spIsNotNull),
+            spDefaultValue: new FormControl(col.spDefaultValue),
             spId: new FormControl(col.spId),
             srcId: new FormControl(col.srcId),
             spColMaxLength: new FormControl(col.spColMaxLength),
@@ -330,6 +334,7 @@ export class ObjectDetailComponent implements OnInit {
             srcDataType: new FormControl(col.srcDataType),
             srcIsPk: new FormControl(col.srcIsPk),
             srcIsNotNull: new FormControl(col.srcIsNotNull),
+            srcDefaultValue: new FormControl(col.srcDefaultValue),
             srcColMaxLength: new FormControl(col.srcColMaxLength),
             spOrder: new FormControl(col.srcOrder),
             spColName: new FormControl(col.srcColName),
@@ -338,6 +343,7 @@ export class ObjectDetailComponent implements OnInit {
             ),
             spIsPk: new FormControl(col.srcIsPk),
             spIsNotNull: new FormControl(col.srcIsNotNull),
+            spDefaultValue: new FormControl(col.srcDefaultValue),
             spColMaxLength: new FormControl(droppedColumnSpMaxLength),
             spAutoGen: new FormControl(col.spAutoGen)
           })

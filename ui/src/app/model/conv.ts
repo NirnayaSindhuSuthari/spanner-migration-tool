@@ -58,6 +58,7 @@ export interface IColumn {
   Name: string
   Type: ISpannerType
   NotNull: boolean
+  Default: IDefaultValue
   Ignored: IIgnored
   Id: string
 }
@@ -141,8 +142,15 @@ export interface IColumnDef {
   Name: string
   T: IType
   NotNull: boolean
+  Default: IDefaultValue
   Comment: string
   AutoGen: IAutoGen
+}
+
+export interface IDefaultValue{
+  IsPresent: boolean
+  DefaultValue: string
+  // IsSpannerSupported: boolean
 }
 
 export interface IType {

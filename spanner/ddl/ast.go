@@ -169,6 +169,13 @@ func (ty Type) PGPrintColumnDefType() string {
 	return str
 }
 
+// DefaultValue represents whether Defaultvalue is present, DefaultValue and IsSpannerSupported.
+type DefaultValue struct {
+	IsPresent          bool
+	DefaultValue       string
+	// IsSpannerSupported bool
+}
+
 // ColumnDef encodes the following DDL definition:
 //
 //	column_def:
@@ -180,6 +187,7 @@ type ColumnDef struct {
 	Comment string
 	Id      string
 	AutoGen AutoGenCol
+	Default DefaultValue
 }
 
 // Config controls how AST nodes are printed (aka unparsed).
@@ -240,6 +248,12 @@ func (cd ColumnDef) PrintColumnDef(c Config) (string, string) {
 		s = fmt.Sprintf("%s %s", c.quote(cd.Name), cd.T.PrintColumnDefType())
 		if cd.NotNull {
 			s += " NOT NULL "
+		}
+		// if cd.Default.IsPresent && cd.Default.IsSpannerSupported {
+		// 	s += " DEFAULT (" + cd.Default.DefaultValue + ") "
+		// }
+		if cd.Default.IsPresent {
+			s += " DEFAULT (" + cd.Default.DefaultValue + ") "
 		}
 		s += cd.AutoGen.PrintAutoGenCol()
 	}
