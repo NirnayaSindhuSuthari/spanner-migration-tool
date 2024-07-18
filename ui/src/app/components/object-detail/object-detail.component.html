@@ -166,6 +166,15 @@
               </td>
             </ng-container>
 
+            <ng-container matColumnDef="srcDefaultValue">
+              <th mat-header-cell class="table_header" *matHeaderCellDef>Default Value</th>
+              <td mat-cell *matCellDef="let element">
+                <div class="trimmed-text">
+                  {{ element.get('srcDefaultValue').value }}
+                </div>
+              </td>
+            </ng-container>
+
             <tr mat-header-row *matHeaderRowDef="['srcDatabase']"></tr>
             <tr mat-header-row *matHeaderRowDef="srcDisplayedColumns"></tr>
             <tr mat-row [ngClass]="{ 'scr-column-data-edit-mode': isEditMode }"
@@ -328,6 +337,15 @@
               </td>
             </ng-container>
 
+            <ng-container matColumnDef="spDefaultValue">
+              <th class="table_header" mat-header-cell *matHeaderCellDef>Default Value</th>
+              <td mat-cell *matCellDef="let element">
+                <div class="trimmed-text">
+                  {{ element.get('spDefaultValue').value }}
+                </div>
+              </td>
+            </ng-container>
+            
             <ng-container matColumnDef="dropButton">
               <th mat-header-cell class="table_header" *matHeaderCellDef></th>
               <td mat-cell *matCellDef="let element" [ngClass]="{ 'drop-button-left-border': isEditMode }">

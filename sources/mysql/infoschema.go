@@ -219,18 +219,36 @@ func (isi InfoSchemaImpl) GetColumns(conv *internal.Conv, table common.SchemaAnd
 		} else {
 			colAutoGen = ddl.AutoGenCol{}
 		}
+		defaultVal := schema.DefaultValue{
+			IsPresent: colDefault.Valid,
+			Value:     "",
+		}
+		if colDefault.Valid {
+			defaultVal.Value = SanitizeDefaultValue(colDefault.String)
+		}
 		c := schema.Column{
-			Id:      colId,
-			Name:    colName,
-			Type:    toType(dataType, columnType, charMaxLen, numericPrecision, numericScale),
-			NotNull: common.ToNotNull(conv, isNullable),
-			Ignored: ignored,
-			AutoGen: colAutoGen,
+			Id:           colId,
+			Name:         colName,
+			Type:         toType(dataType, columnType, charMaxLen, numericPrecision, numericScale),
+			NotNull:      common.ToNotNull(conv, isNullable),
+			Ignored:      ignored,
+			AutoGen:      colAutoGen,
+			DefaultValue: defaultVal,
 		}
 		colDefs[colId] = c
 		colIds = append(colIds, colId)
 	}
 	return colDefs, colIds, nil
+}
+
+// SanitizeDefaultValue removes extra characters added to Default Values.
+// Example: If the default value provided is John, then after fetching it is modified to _utf8mb4\'John\'. 
+func SanitizeDefaultValue(defaultVal string) (string){
+	defaultVal = strings.ReplaceAll(defaultVal, "\\", "")
+	defaultVal = strings.ReplaceAll(defaultVal, "''", "'")
+	after := strings.Replace(defaultVal, "_utf8mb4", "", 1)
+	defaultVal = strings.ReplaceAll(after, "_utf8mb4", " ")
+	return defaultVal
 }
 
 // GetConstraints returns a list of primary keys and by-column map of

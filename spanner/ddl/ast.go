@@ -174,12 +174,19 @@ func (ty Type) PGPrintColumnDefType() string {
 //	column_def:
 //	  column_name type [NOT NULL] [options_def]
 type ColumnDef struct {
-	Name    string
-	T       Type
-	NotNull bool
-	Comment string
-	Id      string
-	AutoGen AutoGenCol
+	Name         string
+	T            Type
+	NotNull      bool
+	Comment      string
+	Id           string
+	AutoGen      AutoGenCol
+	DefaultValue DefaultValue
+}
+
+// DefaultValue represents whether Defaultvalue is present and DefaultValue.
+type DefaultValue struct {
+	IsPresent bool
+	Value     string
 }
 
 // Config controls how AST nodes are printed (aka unparsed).
@@ -240,6 +247,9 @@ func (cd ColumnDef) PrintColumnDef(c Config) (string, string) {
 		s = fmt.Sprintf("%s %s", c.quote(cd.Name), cd.T.PrintColumnDefType())
 		if cd.NotNull {
 			s += " NOT NULL "
+		}
+		if cd.DefaultValue.IsPresent {
+			s += " DEFAULT (" + cd.DefaultValue.Value + ") "
 		}
 		s += cd.AutoGen.PrintAutoGenCol()
 	}

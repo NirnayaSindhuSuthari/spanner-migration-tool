@@ -53,8 +53,8 @@ func (msads *MockSchemaFromSource) schemaFromDatabase(migrationProjectId string,
 	args := msads.Called(migrationProjectId, sourceProfile, targetProfile, getInfo, processSchema)
 	return args.Get(0).(*internal.Conv), args.Error(1)
 }
-func (msads *MockSchemaFromSource) SchemaFromDump(driver string, spDialect string, ioHelper *utils.IOStreams, processDump ProcessDumpByDialectInterface) (*internal.Conv, error) {
-	args := msads.Called(driver, spDialect, ioHelper, processDump)
+func (msads *MockSchemaFromSource) SchemaFromDump(SpProjectId string, SpInstanceId string, driver string, spDialect string, ioHelper *utils.IOStreams, processDump ProcessDumpByDialectInterface) (*internal.Conv, error) {
+	args := msads.Called(SpProjectId, SpInstanceId, driver, spDialect, ioHelper, processDump)
 	return args.Get(0).(*internal.Conv), args.Error(1)
 }
 
@@ -66,7 +66,7 @@ func (msads *MockDataFromSource) dataFromDatabase(ctx context.Context, migration
 	args := msads.Called(ctx, migrationProjectId, sourceProfile, targetProfile, config, conv, client, getInfo, dataFromDb, snapshotMigration)
 	return args.Get(0).(*writer.BatchWriter), args.Error(1)
 }
-func (msads *MockDataFromSource) dataFromDump(driver string, config writer.BatchWriterConfig, ioHelper *utils.IOStreams, client *sp.Client, conv *internal.Conv, dataOnly bool, processDump ProcessDumpByDialectInterface, populateDataConv PopulateDataConvInterface) (*writer.BatchWriter, error) {
+func (msads *MockDataFromSource) dataFromDump(targetProfile profiles.TargetProfile, driver string, config writer.BatchWriterConfig, ioHelper *utils.IOStreams, client *sp.Client, conv *internal.Conv, dataOnly bool, processDump ProcessDumpByDialectInterface, populateDataConv PopulateDataConvInterface) (*writer.BatchWriter, error) {
 	args := msads.Called(driver, config, ioHelper, client, conv, dataOnly, processDump, populateDataConv)
 	return args.Get(0).(*writer.BatchWriter), args.Error(1)
 }
