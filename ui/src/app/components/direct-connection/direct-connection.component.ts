@@ -9,6 +9,9 @@ import { DialectList, InputType, PersistedFormValues, StorageKeys } from 'src/ap
 import { SnackbarService } from 'src/app/services/snackbar/snackbar.service'
 import { extractSourceDbName } from 'src/app/utils/utils'
 import { ClickEventService } from 'src/app/services/click-event/click-event.service'
+import ISpannerConfig from '../../model/spanner-config'
+import { MatDialog } from '@angular/material/dialog'
+import { InfodialogComponent } from '../infodialog/infodialog.component'
 
 @Component({
   selector: 'app-direct-connection',
@@ -34,13 +37,15 @@ export class DirectConnectionComponent implements OnInit {
     { value: 'postgres', displayName: 'PostgreSQL' },
   ]
 
+  spannerConfig: ISpannerConfig
+  isOfflineStatus: boolean = false
   isTestConnectionSuccessful = false
 
   connectRequest: any = null
   getSchemaRequest: any = null
   shardedResponseList = [
-    { value: false, displayName: 'No'},
-    { value: true, displayName: 'Yes'},
+    { value: false, displayName: 'No' },
+    { value: true, displayName: 'Yes' },
   ]
 
   dialect = DialectList
@@ -51,8 +56,11 @@ export class DirectConnectionComponent implements OnInit {
     private data: DataService,
     private loader: LoaderService,
     private snackbarService: SnackbarService,
-    private clickEvent: ClickEventService
-  ) {}
+    private clickEvent: ClickEventService,
+    private dialog: MatDialog,
+  ) {
+    this.spannerConfig = { GCPProjectID: '', SpannerInstanceID: '' }
+  }
 
   ngOnInit(): void {
     //initialise component with the previously persisted values if present.
@@ -72,6 +80,16 @@ export class DirectConnectionComponent implements OnInit {
         }
       },
     })
+
+    this.data.config.subscribe((res: ISpannerConfig) => {
+      this.spannerConfig = res
+    })
+
+    this.data.isOffline.subscribe({
+      next: (res) => {
+        this.isOfflineStatus = res
+      },
+    })
   }
 
   testConn() {
@@ -87,59 +105,71 @@ export class DirectConnectionComponent implements OnInit {
       password: password!,
       dbName: dbName!,
     }
-    this.connectRequest =this.fetch.connectTodb(config, dialect!).subscribe({
-        next: () => {
-          this.snackbarService.openSnackBar('SUCCESS! Spanner migration tool was able to successfully ping source database', 'Close', 3)
-          //Datbase loader causes the direct connection form to get refreshed hence this value needs to be persisted to local storage.
-          localStorage.setItem(PersistedFormValues.IsConnectionSuccessful, "true")
-          this.clickEvent.closeDatabaseLoader()
-        },
-        error: (e) => { 
-          this.isTestConnectionSuccessful = false
-          this.snackbarService.openSnackBar(e.error, 'Close')
-          localStorage.setItem(PersistedFormValues.IsConnectionSuccessful, "false")
-          this.clickEvent.closeDatabaseLoader()
-        }
-      })
+    this.connectRequest = this.fetch.connectTodb(config, dialect!).subscribe({
+      next: () => {
+        this.snackbarService.openSnackBar('SUCCESS! Spanner migration tool was able to successfully ping source database', 'Close', 3)
+        //Datbase loader causes the direct connection form to get refreshed hence this value needs to be persisted to local storage.
+        localStorage.setItem(PersistedFormValues.IsConnectionSuccessful, "true")
+        this.clickEvent.closeDatabaseLoader()
+      },
+      error: (e) => {
+        this.isTestConnectionSuccessful = false
+        this.snackbarService.openSnackBar(e.error, 'Close')
+        localStorage.setItem(PersistedFormValues.IsConnectionSuccessful, "false")
+        this.clickEvent.closeDatabaseLoader()
+      }
+    })
   }
 
   connectToDb() {
-    this.clickEvent.openDatabaseLoader('direct', this.connectForm.value.dbName!)
-    window.scroll(0, 0)
-    this.data.resetStore()
-    localStorage.clear()
-    const { dbEngine, isSharded, hostName, port, userName, password, dbName, dialect } = this.connectForm.value
-    localStorage.setItem(PersistedFormValues.DirectConnectForm, JSON.stringify(this.connectForm.value))
-    let config: IDbConfig = {
-      dbEngine: dbEngine!,
-      isSharded: isSharded!,
-      hostName: hostName!,
-      port: port!,
-      userName: userName!,
-      password: password!,
-      dbName: dbName!,
-    }
-    this.connectRequest =this.fetch.connectTodb(config, dialect!).subscribe({
-        next: () => {
-          this.getSchemaRequest = this.data.getSchemaConversionFromDb()
-          this.data.conv.subscribe((res) => {
-            localStorage.setItem(
-              StorageKeys.Config,
-              JSON.stringify({ dbEngine, hostName, port, userName, password, dbName })
-            )
-            localStorage.setItem(StorageKeys.Type, InputType.DirectConnect)
-            localStorage.setItem(StorageKeys.SourceDbName, extractSourceDbName(dbEngine!))
-            this.clickEvent.closeDatabaseLoader()
-            //after a successful load, remove the persisted values.
-            localStorage.removeItem(PersistedFormValues.DirectConnectForm)
-            this.router.navigate(['/workspace'])
-          })
-        },
-        error: (e) => { 
-          this.snackbarService.openSnackBar(e.error, 'Close')
-          this.clickEvent.closeDatabaseLoader()
-        },
+    if ((!this.spannerConfig.GCPProjectID && !this.spannerConfig.SpannerInstanceID) || (this.isOfflineStatus)) {
+      const dialogRef = this.dialog.open(InfodialogComponent, {
+        data: { message: "Please configure spanner project id and instance id to proceed otherwise Default Values will not be migrated", type: 'warning', title: 'Configure Spanner' },
+        maxWidth: '500px',
       })
+      dialogRef.afterClosed().subscribe((dialogResult) => {
+        if (dialogResult) {
+          this.clickEvent.openDatabaseLoader('direct', this.connectForm.value.dbName!)
+          window.scroll(0, 0)
+          this.data.resetStore()
+          localStorage.clear()
+          const { dbEngine, isSharded, hostName, port, userName, password, dbName, dialect } = this.connectForm.value
+          localStorage.setItem(PersistedFormValues.DirectConnectForm, JSON.stringify(this.connectForm.value))
+          let config: IDbConfig = {
+            dbEngine: dbEngine!,
+            isSharded: isSharded!,
+            hostName: hostName!,
+            port: port!,
+            userName: userName!,
+            password: password!,
+            dbName: dbName!,
+          }
+          this.connectRequest = this.fetch.connectTodb(config, dialect!).subscribe({
+            next: () => {
+              this.getSchemaRequest = this.data.getSchemaConversionFromDb()
+              this.data.conv.subscribe((res) => {
+                localStorage.setItem(
+                  StorageKeys.Config,
+                  JSON.stringify({ dbEngine, hostName, port, userName, password, dbName })
+                )
+                localStorage.setItem(StorageKeys.Type, InputType.DirectConnect)
+                localStorage.setItem(StorageKeys.SourceDbName, extractSourceDbName(dbEngine!))
+                this.clickEvent.closeDatabaseLoader()
+                //after a successful load, remove the persisted values.
+                localStorage.removeItem(PersistedFormValues.DirectConnectForm)
+                this.router.navigate(['/workspace'])
+              })
+            },
+            error: (e) => {
+              this.snackbarService.openSnackBar(e.error, 'Close')
+              this.clickEvent.closeDatabaseLoader()
+            },
+          })
+        } else {
+          // User canceled, stay on the same page
+        }
+      });
+    }
   }
 
   refreshDbSpecifcConnectionOptions() {
