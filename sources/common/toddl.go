@@ -34,14 +34,16 @@ import (
 	"reflect"
 	"strconv"
 	"unicode"
-	"context"
-	"cloud.google.com/go/spanner"
-	"google.golang.org/api/iterator"
+	// "context"
+	// "cloud.google.com/go/spanner"
+	// "google.golang.org/api/iterator"
 	// spanneraccessor "github.com/GoogleCloudPlatform/spanner-migration-tool/accessors/spanner"
+	spannermetadataaccessor "github.com/GoogleCloudPlatform/spanner-migration-tool/accessors/spanner/spannermetadataaccessor"
 	"github.com/GoogleCloudPlatform/spanner-migration-tool/common/constants"
 	"github.com/GoogleCloudPlatform/spanner-migration-tool/internal"
 	"github.com/GoogleCloudPlatform/spanner-migration-tool/schema"
 	"github.com/GoogleCloudPlatform/spanner-migration-tool/spanner/ddl"
+	// "github.com/GoogleCloudPlatform/spanner-migration-tool/webv2/session"
 )
 
 // ToDdl interface is meant to be implemented by all sources. When support for a
@@ -53,8 +55,8 @@ type ToDdl interface {
 }
 
 type SchemaToSpannerInterface interface {
-	SchemaToSpannerDDL(conv *internal.Conv, toddl ToDdl) error
-	SchemaToSpannerDDLHelper(conv *internal.Conv, toddl ToDdl, srcTable schema.Table, isRestore bool) error
+	SchemaToSpannerDDL(SpProjectId string, SpInstanceId string, conv *internal.Conv, toddl ToDdl) error
+	SchemaToSpannerDDLHelper(SpProjectId string, SpInstanceId string, conv *internal.Conv, toddl ToDdl, srcTable schema.Table, isRestore bool) error
 }
 
 type SchemaToSpannerImpl struct {}
@@ -62,17 +64,17 @@ type SchemaToSpannerImpl struct {}
 // SchemaToSpannerDDL performs schema conversion from the source DB schema to
 // Spanner. It uses the source schema in conv.SrcSchema, and writes
 // the Spanner schema to conv.SpSchema.
-func (ss *SchemaToSpannerImpl) SchemaToSpannerDDL(conv *internal.Conv, toddl ToDdl) error {
+func (ss *SchemaToSpannerImpl) SchemaToSpannerDDL(SpProjectId string, SpInstanceId string, conv *internal.Conv, toddl ToDdl) error {
 	tableIds := GetSortedTableIdsBySrcName(conv.SrcSchema)
 	for _, tableId := range tableIds {
 		srcTable := conv.SrcSchema[tableId]
-		ss.SchemaToSpannerDDLHelper(conv, toddl, srcTable, false)
+		ss.SchemaToSpannerDDLHelper(SpProjectId, SpInstanceId, conv, toddl, srcTable, false)
 	}
 	internal.ResolveRefs(conv)
 	return nil
 }
 
-func (ss *SchemaToSpannerImpl) SchemaToSpannerDDLHelper(conv *internal.Conv, toddl ToDdl, srcTable schema.Table, isRestore bool) error {
+func (ss *SchemaToSpannerImpl) SchemaToSpannerDDLHelper(SpProjectId string, SpInstanceId string, conv *internal.Conv, toddl ToDdl, srcTable schema.Table, isRestore bool) error {
 	spTableName, err := internal.GetSpannerTable(conv, srcTable.Id)
 	if err != nil {
 		conv.Unexpected(fmt.Sprintf("Couldn't map source table %s to Spanner: %s", srcTable.Name, err))
@@ -136,13 +138,13 @@ func (ss *SchemaToSpannerImpl) SchemaToSpannerDDLHelper(conv *internal.Conv, tod
 		// 	defaultVal.IsSpannerSupported = IsSpannerSupported(srcCol.Default.DefaultValue, ty.Name)
 		// }
 		
-		if srcCol.Default.IsPresent {
-			defaultVal.IsPresent = IsSpannerSupported(srcCol.Default.DefaultValue, ty.Name)
-		}
 		// if srcCol.Default.IsPresent {
-		// 	spA := spanneraccessor.SpannerAccessorImpl{}
-		// 	defaultVal.IsPresent = spA.IsSpannerSupported(srcCol.Default.DefaultValue, ty.Name)
+		// 	defaultVal.IsPresent = IsSpannerSupported(SpProjectId, SpInstanceId, srcCol.Default.DefaultValue, ty.Name)
 		// }
+		if srcCol.Default.IsPresent {
+			spM := spannermetadataaccessor.SpannerMetadataAccessorImpl{}
+			defaultVal.IsPresent = spM.IsSpannerSupportedStatement(SpProjectId, SpInstanceId, srcCol.Default.DefaultValue, ty.Name)
+		}
 
 		spColDef[srcColId] = ddl.ColumnDef{
 			Name:    colName,
@@ -180,40 +182,41 @@ func (ss *SchemaToSpannerImpl) SchemaToSpannerDDLHelper(conv *internal.Conv, tod
 	return nil
 }
 
-func IsSpannerSupported(defaultval string, columntype string) bool {
-	db := "projects/cloud-spanner-intern/instances/testing-instance/databases/functions_test"
-	err := query(db, defaultval, columntype)
-	if err != nil {
-		return false
-	} else {
-		return true
-	}
-}
+// func IsSpannerSupported(SpProjectId string, SpInstanceId string, defaultval string, columntype string) bool {
+// 	db := "projects/cloud-spanner-intern/instances/testing-instance/databases/functions_test"
+// 	// db := session.getMetadataDbUri()
+// 	err := query(db, defaultval, columntype)
+// 	if err != nil {
+// 		return false
+// 	} else {
+// 		return true
+// 	}
+// }
 
-func query(db string, defaultval string, ty string) error {
-	ctx := context.Background()
-	client, err := spanner.NewClient(ctx, db)
-	if err != nil {
-		return err
-	}
-	defer client.Close()
+// func query(db string, defaultval string, ty string) error {
+// 	ctx := context.Background()
+// 	client, err := spanner.NewClient(ctx, db)
+// 	if err != nil {
+// 		return err
+// 	}
+// 	defer client.Close()
 
-	stmt := spanner.Statement{
-		SQL: "SELECT CAST("+defaultval+" AS "+ty+") AS ConvertedDefaultval",
-	}
-	iter := client.Single().Query(ctx, stmt)
-	defer iter.Stop()
-	for {
-		_, err := iter.Next()
-		if err == iterator.Done {
-			return nil
-		}
-		if err != nil {
-			return err
-		}
+// 	stmt := spanner.Statement{
+// 		SQL: "SELECT CAST("+defaultval+" AS "+ty+") AS ConvertedDefaultval",
+// 	}
+// 	iter := client.Single().Query(ctx, stmt)
+// 	defer iter.Stop()
+// 	for {
+// 		_, err := iter.Next()
+// 		if err == iterator.Done {
+// 			return nil
+// 		}
+// 		if err != nil {
+// 			return err
+// 		}
 
-	}
-}
+// 	}
+// }
 
 func quoteIfNeeded(s string) string {
 	for _, r := range s {
@@ -291,9 +294,9 @@ func cvtIndexes(conv *internal.Conv, tableId string, srcIndexes []schema.Index, 
 	return spIndexes
 }
 
-func SrcTableToSpannerDDL(conv *internal.Conv, toddl ToDdl, srcTable schema.Table) error {
+func SrcTableToSpannerDDL(SpProjectId string, SpInstanceId string, conv *internal.Conv, toddl ToDdl, srcTable schema.Table) error {
 	schemaToSpanner := SchemaToSpannerImpl{}
-	err := schemaToSpanner.SchemaToSpannerDDLHelper(conv, toddl, srcTable, true)
+	err := schemaToSpanner.SchemaToSpannerDDLHelper(SpProjectId, SpInstanceId, conv, toddl, srcTable, true)
 	if err != nil {
 		return err
 	}

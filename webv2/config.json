@@ -1,5 +1,5 @@
 {
- "GCPProjectID": "",
- "SpannerProjectID": "",
- "SpannerInstanceID": ""
+ "GCPProjectID": "cloud-spanner-intern",
+ "SpannerProjectID": "cloud-spanner-intern",
+ "SpannerInstanceID": "testing-instance"
 }
