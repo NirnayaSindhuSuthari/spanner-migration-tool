@@ -120,57 +120,150 @@ export class DirectConnectionComponent implements OnInit {
       }
     })
   }
-
-  connectToDb() {
+  chekSpConfig() {
     if ((!this.spannerConfig.GCPProjectID && !this.spannerConfig.SpannerInstanceID) || (this.isOfflineStatus)) {
       const dialogRef = this.dialog.open(InfodialogComponent, {
-        data: { message: "Please configure spanner project id and instance id to proceed otherwise Default Values will not be migrated", type: 'warning', title: 'Configure Spanner' },
+        data: { message: "Please configure spanner project id and instance id to proceed otherwise default values will not be migrated", type: 'warning', title: 'Configure Spanner' },
         maxWidth: '500px',
       })
       dialogRef.afterClosed().subscribe((dialogResult) => {
         if (dialogResult) {
-          this.clickEvent.openDatabaseLoader('direct', this.connectForm.value.dbName!)
-          window.scroll(0, 0)
-          this.data.resetStore()
-          localStorage.clear()
-          const { dbEngine, isSharded, hostName, port, userName, password, dbName, dialect } = this.connectForm.value
-          localStorage.setItem(PersistedFormValues.DirectConnectForm, JSON.stringify(this.connectForm.value))
-          let config: IDbConfig = {
-            dbEngine: dbEngine!,
-            isSharded: isSharded!,
-            hostName: hostName!,
-            port: port!,
-            userName: userName!,
-            password: password!,
-            dbName: dbName!,
-          }
-          this.connectRequest = this.fetch.connectTodb(config, dialect!).subscribe({
-            next: () => {
-              this.getSchemaRequest = this.data.getSchemaConversionFromDb()
-              this.data.conv.subscribe((res) => {
-                localStorage.setItem(
-                  StorageKeys.Config,
-                  JSON.stringify({ dbEngine, hostName, port, userName, password, dbName })
-                )
-                localStorage.setItem(StorageKeys.Type, InputType.DirectConnect)
-                localStorage.setItem(StorageKeys.SourceDbName, extractSourceDbName(dbEngine!))
-                this.clickEvent.closeDatabaseLoader()
-                //after a successful load, remove the persisted values.
-                localStorage.removeItem(PersistedFormValues.DirectConnectForm)
-                this.router.navigate(['/workspace'])
-              })
-            },
-            error: (e) => {
-              this.snackbarService.openSnackBar(e.error, 'Close')
-              this.clickEvent.closeDatabaseLoader()
-            },
-          })
+          this.connectToDb();
         } else {
-          // User canceled, stay on the same page
+          // user cancelled, stays on same page.
         }
-      });
+      })
+    } else {
+      this.connectToDb();
     }
   }
+  
+  connectToDb() {
+    this.clickEvent.openDatabaseLoader('direct', this.connectForm.value.dbName!)
+    window.scroll(0, 0)
+    this.data.resetStore()
+    localStorage.clear()
+    const { dbEngine, isSharded, hostName, port, userName, password, dbName, dialect } = this.connectForm.value
+    localStorage.setItem(PersistedFormValues.DirectConnectForm, JSON.stringify(this.connectForm.value))
+    let config: IDbConfig = {
+      dbEngine: dbEngine!,
+      isSharded: isSharded!,
+      hostName: hostName!,
+      port: port!,
+      userName: userName!,
+      password: password!,
+      dbName: dbName!,
+    }
+    this.connectRequest = this.fetch.connectTodb(config, dialect!).subscribe({
+      next: () => {
+        this.getSchemaRequest = this.data.getSchemaConversionFromDb()
+        this.data.conv.subscribe((res) => {
+          localStorage.setItem(
+            StorageKeys.Config,
+            JSON.stringify({ dbEngine, hostName, port, userName, password, dbName })
+          )
+          localStorage.setItem(StorageKeys.Type, InputType.DirectConnect)
+          localStorage.setItem(StorageKeys.SourceDbName, extractSourceDbName(dbEngine!))
+          this.clickEvent.closeDatabaseLoader()
+          //after a successful load, remove the persisted values.
+          localStorage.removeItem(PersistedFormValues.DirectConnectForm)
+          this.router.navigate(['/workspace'])
+        })
+      },
+      error: (e) => {
+        this.snackbarService.openSnackBar(e.error, 'Close')
+        this.clickEvent.closeDatabaseLoader()
+      },
+    })
+  }
+
+  // connectToDb() {
+  //   if ((!this.spannerConfig.GCPProjectID && !this.spannerConfig.SpannerInstanceID) || (this.isOfflineStatus)) {
+  //     const dialogRef = this.dialog.open(InfodialogComponent, {
+  //       data: { message: "Please configure spanner project id and instance id to proceed otherwise default values will not be migrated", type: 'warning', title: 'Configure Spanner' },
+  //       maxWidth: '500px',
+  //     })
+  //     dialogRef.afterClosed().subscribe((dialogResult) => {
+  //       if (dialogResult) {
+  //         this.clickEvent.openDatabaseLoader('direct', this.connectForm.value.dbName!)
+  //         window.scroll(0, 0)
+  //         this.data.resetStore()
+  //         localStorage.clear()
+  //         const { dbEngine, isSharded, hostName, port, userName, password, dbName, dialect } = this.connectForm.value
+  //         localStorage.setItem(PersistedFormValues.DirectConnectForm, JSON.stringify(this.connectForm.value))
+  //         let config: IDbConfig = {
+  //           dbEngine: dbEngine!,
+  //           isSharded: isSharded!,
+  //           hostName: hostName!,
+  //           port: port!,
+  //           userName: userName!,
+  //           password: password!,
+  //           dbName: dbName!,
+  //         }
+  //         this.connectRequest = this.fetch.connectTodb(config, dialect!).subscribe({
+  //           next: () => {
+  //             this.getSchemaRequest = this.data.getSchemaConversionFromDb()
+  //             this.data.conv.subscribe((res) => {
+  //               localStorage.setItem(
+  //                 StorageKeys.Config,
+  //                 JSON.stringify({ dbEngine, hostName, port, userName, password, dbName })
+  //               )
+  //               localStorage.setItem(StorageKeys.Type, InputType.DirectConnect)
+  //               localStorage.setItem(StorageKeys.SourceDbName, extractSourceDbName(dbEngine!))
+  //               this.clickEvent.closeDatabaseLoader()
+  //               //after a successful load, remove the persisted values.
+  //               localStorage.removeItem(PersistedFormValues.DirectConnectForm)
+  //               this.router.navigate(['/workspace'])
+  //             })
+  //           },
+  //           error: (e) => {
+  //             this.snackbarService.openSnackBar(e.error, 'Close')
+  //             this.clickEvent.closeDatabaseLoader()
+  //           },
+  //         })
+  //       } else {
+  //         // User canceled, stay on the same page
+  //       }
+  //     });
+  //   } else {
+  //     this.clickEvent.openDatabaseLoader('direct', this.connectForm.value.dbName!)
+  //         window.scroll(0, 0)
+  //         this.data.resetStore()
+  //         localStorage.clear()
+  //         const { dbEngine, isSharded, hostName, port, userName, password, dbName, dialect } = this.connectForm.value
+  //         localStorage.setItem(PersistedFormValues.DirectConnectForm, JSON.stringify(this.connectForm.value))
+  //         let config: IDbConfig = {
+  //           dbEngine: dbEngine!,
+  //           isSharded: isSharded!,
+  //           hostName: hostName!,
+  //           port: port!,
+  //           userName: userName!,
+  //           password: password!,
+  //           dbName: dbName!,
+  //         }
+  //         this.connectRequest = this.fetch.connectTodb(config, dialect!).subscribe({
+  //           next: () => {
+  //             this.getSchemaRequest = this.data.getSchemaConversionFromDb()
+  //             this.data.conv.subscribe((res) => {
+  //               localStorage.setItem(
+  //                 StorageKeys.Config,
+  //                 JSON.stringify({ dbEngine, hostName, port, userName, password, dbName })
+  //               )
+  //               localStorage.setItem(StorageKeys.Type, InputType.DirectConnect)
+  //               localStorage.setItem(StorageKeys.SourceDbName, extractSourceDbName(dbEngine!))
+  //               this.clickEvent.closeDatabaseLoader()
+  //               //after a successful load, remove the persisted values.
+  //               localStorage.removeItem(PersistedFormValues.DirectConnectForm)
+  //               this.router.navigate(['/workspace'])
+  //             })
+  //           },
+  //           error: (e) => {
+  //             this.snackbarService.openSnackBar(e.error, 'Close')
+  //             this.clickEvent.closeDatabaseLoader()
+  //           },
+  //         })
+  //   }
+  // }
 
   refreshDbSpecifcConnectionOptions() {
     this.connectForm.value.isSharded = false
