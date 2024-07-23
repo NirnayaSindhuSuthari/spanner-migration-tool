@@ -25,7 +25,7 @@ import (
 
 type SpannerMetadataAccessor interface {
 	// IsSpannerSupported checks whether the statement from Source database is supported by Spanner or not.
-	IsSpannerSupported(defaultval string, columntype string) bool
+	IsSpannerSupported(SpProjectId string, SpInstanceId string, defaultval string, columntype string) bool
 	// firing query to spanner to cast statement based on spanner column type.
 	isValidSpannerStatement(db string, defaultval string, ty string) error
 }
@@ -34,6 +34,9 @@ type SpannerMetadataAccessorImpl struct{}
 
 func (spm *SpannerMetadataAccessorImpl) IsSpannerSupportedStatement(SpProjectId string, SpInstanceId string, statement string, columntype string) bool {
 	db := getSpannerUri(SpProjectId, SpInstanceId)
+	if(SpProjectId=="" || SpInstanceId ==""){
+		return false
+	}
 	err := spm.isValidSpannerStatement(db, statement, columntype)
 	if err != nil {
 		return false
@@ -48,6 +51,9 @@ func (spm *SpannerMetadataAccessorImpl) isValidSpannerStatement(db string, state
 		return err
 	}
 
+	if spmClient == nil {
+		return fmt.Errorf("Client is nil")
+	}
 	stmt := spanner.Statement{
 		SQL: "SELECT CAST(" + statement + " AS " + ty + ") AS ConvertedDefaultval",
 	}
