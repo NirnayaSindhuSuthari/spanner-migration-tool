@@ -242,12 +242,13 @@ func (isi InfoSchemaImpl) GetColumns(conv *internal.Conv, table common.SchemaAnd
 	return colDefs, colIds, nil
 }
 
-// SanitizeDefaultValue removes extra characters added to Default Values.
+// sanitizeDefaultValue removes extra characters added to Default Values.
 // Example: If the default value provided is John, then after fetching it is modified to _utf8mb4\'John\'.
 func SanitizeDefaultValue(defaultVal string) string {
 	defaultVal = strings.ReplaceAll(defaultVal, "\\", "")
-	after := strings.Replace(defaultVal, "_utf8mb4", "", 1)
-	defaultVal = strings.ReplaceAll(after, "_utf8mb4", " ")
+	// after := strings.Replace(defaultVal, "_utf8mb4", "", 1)
+	// defaultVal = strings.ReplaceAll(after, "_utf8mb4", " ")
+	defaultVal = strings.ReplaceAll(defaultVal, "_utf8mb4", " ")
 	return defaultVal
 }
 
