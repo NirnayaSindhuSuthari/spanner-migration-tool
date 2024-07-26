@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"sort"
 	"strings"
+	"regexp"
 
 	sp "cloud.google.com/go/spanner"
 	_ "github.com/go-sql-driver/mysql" // The driver should be used via the database/sql package.
@@ -225,7 +226,7 @@ func (isi InfoSchemaImpl) GetColumns(conv *internal.Conv, table common.SchemaAnd
 			Value:     "",
 		}
 		if colDefault.Valid {
-			defaultVal.Value = SanitizeDefaultValue(colDefault.String)
+			defaultVal.Value = sanitizeDefaultValue(colDefault.String)
 		}
 		c := schema.Column{
 			Id:           colId,
@@ -244,11 +245,25 @@ func (isi InfoSchemaImpl) GetColumns(conv *internal.Conv, table common.SchemaAnd
 
 // sanitizeDefaultValue removes extra characters added to Default Values.
 // Example: If the default value provided is John, then after fetching it is modified to _utf8mb4\'John\'.
-func SanitizeDefaultValue(defaultVal string) string {
-	defaultVal = strings.ReplaceAll(defaultVal, "\\", "")
-	// after := strings.Replace(defaultVal, "_utf8mb4", "", 1)
-	// defaultVal = strings.ReplaceAll(after, "_utf8mb4", " ")
-	defaultVal = strings.ReplaceAll(defaultVal, "_utf8mb4", " ")
+// func sanitizeDefaultValue(defaultVal string) string {
+// 	defaultVal = strings.ReplaceAll(defaultVal, "\\", "")
+// 	// after := strings.Replace(defaultVal, "_utf8mb4", "", 1)
+// 	// defaultVal = strings.ReplaceAll(after, "_utf8mb4", " ")
+// 	defaultVal = strings.ReplaceAll(defaultVal, "_utf8mb4", " ")
+// 	return defaultVal
+// }
+
+func sanitizeDefaultValue(defaultVal string) string {
+// Define a regex pattern to remove any encoding prefix followed by a quote-like character
+	escapePattern := regexp.MustCompile("('|\")?_utf8mb4")
+
+// Remove the prefix using regex
+	defaultVal = escapePattern.ReplaceAllString(defaultVal, " ")
+	defaultVal = strings.ReplaceAll(defaultVal, "\\\\", "\\")
+	defaultVal = strings.ReplaceAll(defaultVal, "\\'", "'")
+	// defaultVal = strings.ReplaceAll(defaultVal, "\\r", "\r")
+	// defaultVal = strings.ReplaceAll(defaultVal, "\\n", "\n")
+	defaultVal = strings.ReplaceAll(defaultVal, "\\t", "\t")	
 	return defaultVal
 }
 

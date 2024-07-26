@@ -10,6 +10,7 @@ import { SnackbarService } from 'src/app/services/snackbar/snackbar.service'
 import { extractSourceDbName } from 'src/app/utils/utils'
 import { ClickEventService } from 'src/app/services/click-event/click-event.service'
 // import ISpannerConfig from '../../model/spanner-config'
+// import { UpdateSpannerConfigFormComponent } from '../update-spanner-config-form/update-spanner-config-form.component'
 import { MatDialog } from '@angular/material/dialog'
 import { InfodialogComponent } from '../infodialog/infodialog.component'
 
@@ -130,14 +131,29 @@ export class DirectConnectionComponent implements OnInit {
       dialogRef.afterClosed().subscribe((dialogResult) => {
         if (dialogResult) {
           this.connectToDb();
-        } else {
-          // user cancelled, stays on same page.
         }
       })
     } else {
       this.connectToDb();
     }
   }
+  // onConfirm(): void {
+  //   // Close the dialog, return true
+  //   this.dialogRef.close(true)
+  // }
+  // openEditForm() {
+  //   let openDialog = this.dialog.open(UpdateSpannerConfigFormComponent, {
+  //     width: '30vw',
+  //     minWidth: '400px',
+  //     maxWidth: '500px',
+  //     data: this.spannerConfig,
+  //   })
+  //   openDialog.afterClosed().subscribe((data: ISpannerConfig) => {
+  //     if (data) {
+  //       this.spannerConfig = data
+  //     }
+  //   })
+  // }
   connectToDb() {
     this.clickEvent.openDatabaseLoader('direct', this.connectForm.value.dbName!)
     window.scroll(0, 0)
