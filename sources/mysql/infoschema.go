@@ -20,7 +20,7 @@ import (
 	"fmt"
 	"sort"
 	"strings"
-	"regexp"
+	// "regexp"
 
 	sp "cloud.google.com/go/spanner"
 	_ "github.com/go-sql-driver/mysql" // The driver should be used via the database/sql package.
@@ -255,10 +255,11 @@ func (isi InfoSchemaImpl) GetColumns(conv *internal.Conv, table common.SchemaAnd
 
 func sanitizeDefaultValue(defaultVal string) string {
 // Define a regex pattern to remove any encoding prefix followed by a quote-like character
-	escapePattern := regexp.MustCompile("('|\")?_utf8mb4")
+	// escapePattern := regexp.MustCompile("('|\")?_utf8mb4")
 
 // Remove the prefix using regex
-	defaultVal = escapePattern.ReplaceAllString(defaultVal, " ")
+	// defaultVal = escapePattern.ReplaceAllString(defaultVal, " ")
+	defaultVal = strings.ReplaceAll(defaultVal, "_utf8mb4", " ")
 	defaultVal = strings.ReplaceAll(defaultVal, "\\\\", "\\")
 	defaultVal = strings.ReplaceAll(defaultVal, "\\'", "'")
 	// defaultVal = strings.ReplaceAll(defaultVal, "\\r", "\r")
