@@ -264,7 +264,7 @@ func sanitizeDefaultValue(defaultVal string) string {
 	defaultVal = strings.ReplaceAll(defaultVal, "\\'", "'")
 	// defaultVal = strings.ReplaceAll(defaultVal, "\\r", "\r")
 	// defaultVal = strings.ReplaceAll(defaultVal, "\\n", "\n")
-	defaultVal = strings.ReplaceAll(defaultVal, "\\t", "\t")	
+	// defaultVal = strings.ReplaceAll(defaultVal, "\\t", "\t")	
 	return defaultVal
 }
 
