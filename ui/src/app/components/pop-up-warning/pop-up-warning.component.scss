@@ -1,0 +1,59 @@
+.dialog-container {
+    /* Adjust these values to style the dialog container */
+    width: 500px;
+    max-width: 90%;
+    padding: 20px 22px 20px 22px; /* Adjust padding as needed */
+    // padding-left: 2px;
+    // padding-right: 24px;
+    border-radius: 4px; /* Adjust border radius as needed */
+    background-color: #fff; /* Dialog background color */
+    // box-shadow: 0px 3px 5px rgba(0, 0, 0, 0.1); /* Optional shadow */
+  }
+  
+  .mat-dialog-title {
+    /* Style the dialog title */
+    font-size: 1.2rem; /* Adjust font size as needed */
+    font-weight: bold; /* Adjust font weight as needed */
+    margin-bottom: 15px; /* Add spacing below title */
+  }
+  
+  .dialog-message {
+    /* Style the dialog message content */
+    font-size: 1rem; /* Adjust font size as needed */
+    line-height: 1.5; /* Adjust line height as needed */
+    margin-bottom: 20px; /* Add spacing below message */
+  }
+  
+//   .dialog-action {
+//     /* Style the dialog action section */
+//     display: flex; /* Arrange buttons horizontally */
+//     justify-content: flex-end; /* Align buttons to the right */
+//     margin-left: 2px;
+//     margin-right: 2px;
+//     margin-top: 20px; /* Add spacing above buttons */
+//   }
+
+//   .dialog-container .mat-button {
+//     /* Remove border */
+//     border: none;
+  
+//     /* Apply primary color to text */
+//     color: primary;
+//   }
+  
+  .buttons-container {
+    /* Optional container for buttons if you want more styling */
+    display: flex; /* Maintain horizontal arrangement */
+    // justify-content: flex-end;
+  }
+  
+//   .mat-button {
+//     /* Style the buttons */
+//     margin-left: 10px; /* Add spacing between buttons */
+//     margin-right: 10px;
+//     padding-left : 2px;
+//     padding-right: 2px;
+//     // background-color: blue;
+//   }
+  
+

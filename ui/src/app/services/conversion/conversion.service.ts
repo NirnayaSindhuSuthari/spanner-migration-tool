@@ -12,7 +12,7 @@ import IConv, {
 import IColumnTabData, { IIndexData, ISequenceData } from '../../model/edit-table'
 import IFkTabData from 'src/app/model/fk-tab-data'
 import { ColLength, Dialect, ObjectExplorerNodeType, StorageKeys, autoGenSupportedDbs } from 'src/app/app.constants'
-import { BehaviorSubject } from 'rxjs'
+import { BehaviorSubject, Subject } from 'rxjs'
 import { FetchService } from '../fetch/fetch.service'
 import { extractSourceDbName } from 'src/app/utils/utils'
 
@@ -27,6 +27,8 @@ export class ConversionService {
   standardTypeToPGSQLTypeMap = this.standardTypeToPGSQLTypeMapSub.asObservable()
   pgSQLToStandardTypeTypeMap = this.pgSQLToStandardTypeTypeMapSub.asObservable()
   srcDbName: string = localStorage.getItem(StorageKeys.SourceDbName) as string
+  // connectToDb = new Subject()
+  // openEditform = new Subject()
 
   getStandardTypeToPGSQLTypemap() {
     return this.fetch.getStandardTypeToPGSQLTypemap().subscribe({

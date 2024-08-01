@@ -24,8 +24,8 @@ import (
 )
 
 type SpannerMetadataAccessor interface {
-	// IsSpannerSupported checks whether the statement from Source database is supported by Spanner or not.
-	IsSpannerSupported(SpProjectId string, SpInstanceId string, defaultval string, columntype string) bool
+	// IsSpannerSupportedStatement checks whether the statement from Source database is supported by Spanner or not.
+	IsSpannerSupportedStatement(SpProjectId string, SpInstanceId string, defaultval string, columntype string) bool
 	// firing query to spanner to cast statement based on spanner column type.
 	isValidSpannerStatement(db string, defaultval string, ty string) error
 }
