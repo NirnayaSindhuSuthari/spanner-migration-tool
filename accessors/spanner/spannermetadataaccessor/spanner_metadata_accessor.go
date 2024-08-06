@@ -25,10 +25,10 @@ import (
 )
 
 type SpannerMetadataAccessor interface {
-	// IsSpannerSupportedStatement checks whether the statement from Source database is supported by Spanner or not.
+	// IsSpannerSupportedStatement checks if the given statement is supported by Spanner.
 	IsSpannerSupportedStatement(SpProjectId string, SpInstanceId string, defaultval string, columntype string) bool
-	// firing query to spanner to cast statement based on spanner column type.
-	isValidSpannerStatement(db string, defaultval string, ty string) error
+	// isValidSpannerStatement queries spanner and checks if statement evaluates to a data corresponding to given type.
+	isValidSpannerStatement(db string, defaultval string, datatype string) error
 	// isValidSpannerStatement(db string, defaultval string, ty string) error
 	getClient(ctx context.Context, db string) (*spanner.Client, error)
 }
@@ -52,7 +52,7 @@ func (spm *SpannerMetadataAccessorImpl) getClient(ctx context.Context, db string
 	return spannermetadataclient.GetOrCreateClient(ctx,db)
 }
 
-func (spm *SpannerMetadataAccessorImpl) isValidSpannerStatement(db string, statement string, ty string) error {
+func (spm *SpannerMetadataAccessorImpl) isValidSpannerStatement(db string, statement string, datatype string) error {
 	ctx := context.Background()
 	// spmClient, err := spannermetadataclient.GetOrCreateClient(ctx, db)
 	spmClient, err := spm.getClient(ctx, db)
@@ -64,7 +64,7 @@ func (spm *SpannerMetadataAccessorImpl) isValidSpannerStatement(db string, state
 		return fmt.Errorf("Spanner metadata Client is nil")
 	}
 	stmt := spanner.Statement{
-		SQL: "SELECT CAST(" + statement + " AS " + ty + ") AS ConvertedDefaultval",
+		SQL: "SELECT CAST(" + statement + " AS " + datatype + ") AS statementValue",
 	}
 	iter := spmClient.Single().Query(ctx, stmt)
 	defer iter.Stop()
