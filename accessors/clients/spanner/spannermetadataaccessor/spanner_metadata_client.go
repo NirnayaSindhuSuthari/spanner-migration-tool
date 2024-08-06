@@ -1,4 +1,4 @@
-package spannermetadataclient
+package spannermetadataaccessorclient
 
 import (
 	"context"

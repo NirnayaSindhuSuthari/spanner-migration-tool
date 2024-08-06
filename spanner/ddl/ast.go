@@ -249,7 +249,7 @@ func (cd ColumnDef) PrintColumnDef(c Config) (string, string) {
 			s += " NOT NULL "
 		}
 		if cd.DefaultValue.IsPresent {
-			s += " DEFAULT (" + cd.DefaultValue.Value + ") "
+			s += " DEFAULT (CAST(" + (cd.DefaultValue.Value) + " as " +(cd.T.Name)+ ")) "
 		}
 		s += cd.AutoGen.PrintAutoGenCol()
 	}

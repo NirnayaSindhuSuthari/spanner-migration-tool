@@ -18,6 +18,7 @@ import (
 	"fmt"
 
 	"cloud.google.com/go/spanner"
+	// spannermetadataaccessorclient "github.com/GoogleCloudPlatform/spanner-migration-tool/accessors/clients/spanner/spannermetadataaccessor"
 	spannermetadataclient "github.com/GoogleCloudPlatform/spanner-migration-tool/accessors/spanner/spannermetadataaccessor/clients"
 	"github.com/GoogleCloudPlatform/spanner-migration-tool/common/constants"
 	"google.golang.org/api/iterator"
@@ -28,13 +29,15 @@ type SpannerMetadataAccessor interface {
 	IsSpannerSupportedStatement(SpProjectId string, SpInstanceId string, defaultval string, columntype string) bool
 	// firing query to spanner to cast statement based on spanner column type.
 	isValidSpannerStatement(db string, defaultval string, ty string) error
+	// isValidSpannerStatement(db string, defaultval string, ty string) error
+	getClient(ctx context.Context, db string) (*spanner.Client, error)
 }
 
 type SpannerMetadataAccessorImpl struct{}
 
 func (spm *SpannerMetadataAccessorImpl) IsSpannerSupportedStatement(SpProjectId string, SpInstanceId string, statement string, columntype string) bool {
 	db := getSpannerUri(SpProjectId, SpInstanceId)
-	if(SpProjectId=="" || SpInstanceId ==""){
+	if(SpProjectId == "" || SpInstanceId == ""){
 		return false
 	}
 	err := spm.isValidSpannerStatement(db, statement, columntype)
@@ -44,15 +47,21 @@ func (spm *SpannerMetadataAccessorImpl) IsSpannerSupportedStatement(SpProjectId 
 		return true
 	}
 }
+func (spm *SpannerMetadataAccessorImpl) getClient(ctx context.Context, db string) (*spanner.Client, error) {
+	// return spannermetadataaccessorclient.GetOrCreateClient(ctx,db)
+	return spannermetadataclient.GetOrCreateClient(ctx,db)
+}
+
 func (spm *SpannerMetadataAccessorImpl) isValidSpannerStatement(db string, statement string, ty string) error {
 	ctx := context.Background()
-	spmClient, err := spannermetadataclient.GetOrCreateClient(ctx, db)
+	// spmClient, err := spannermetadataclient.GetOrCreateClient(ctx, db)
+	spmClient, err := spm.getClient(ctx, db)
 	if err != nil {
 		return err
 	}
 
 	if spmClient == nil {
-		return fmt.Errorf("Client is nil")
+		return fmt.Errorf("Spanner metadata Client is nil")
 	}
 	stmt := spanner.Statement{
 		SQL: "SELECT CAST(" + statement + " AS " + ty + ") AS ConvertedDefaultval",
