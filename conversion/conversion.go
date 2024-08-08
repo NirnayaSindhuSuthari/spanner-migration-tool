@@ -81,6 +81,7 @@ func (ci *ConvImpl) SchemaConv(migrationProjectId string, sourceProfile profiles
 		return schemaFromSource.schemaFromDatabase(migrationProjectId, sourceProfile, targetProfile, &GetInfoImpl{}, &common.ProcessSchemaImpl{})
 	case constants.PGDUMP, constants.MYSQLDUMP:
 		return schemaFromSource.SchemaFromDump(SpProjectId, SpInstanceId, sourceProfile.Driver, targetProfile.Conn.Sp.Dialect, ioHelper, &ProcessDumpByDialectImpl{})
+		// return schemaFromSource.SchemaFromDump(sourceProfile.Driver, targetProfile.Conn.Sp.Dialect, ioHelper, &ProcessDumpByDialectImpl{})
 	default:
 		return nil, fmt.Errorf("schema conversion for driver %s not supported", sourceProfile.Driver)
 	}
