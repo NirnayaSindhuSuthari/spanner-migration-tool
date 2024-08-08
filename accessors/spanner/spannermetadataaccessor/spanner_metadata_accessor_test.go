@@ -8,7 +8,7 @@ import (
 	"cloud.google.com/go/spanner"
 	// spannermetadataclient "github.com/GoogleCloudPlatform/spanner-migration-tool/accessors/spanner/spannermetadataaccessor/clients"
 	"github.com/stretchr/testify/assert"
-	// "google.golang.org/api/iterator"
+	"google.golang.org/api/iterator"
 )
 
 // MockSpannerMetadataAccessorImpl mocks the SpannerMetadataAccessorImpl for testing
@@ -136,6 +136,26 @@ func (spm *MockSpannerMetadataAccessorImpl) getClientMock(ctx context.Context, d
 // 	}
 // }
 
+type mockRowIterator struct {
+	rows    []*(spanner.Row)
+	cursor  int
+}
+
+func (m *mockRowIterator) Next() (*spanner.Row, error) {
+	if m.cursor >= len(m.rows) {
+		return nil, iterator.Done
+	}
+	m.cursor += 1
+	return m.rows[m.cursor - 1], nil
+}
+
+func (m *mockRowIterator) Stop() {}
+
+func getClient (ctx context.Context, db string) (*spanner.Client, error) {
+	// return spannermetadataaccessorclient.GetOrCreateClient(ctx,db)
+	return &spanner.Client{}, nil
+}
+
 
 // TestIsValidSpannerStatement tests the isValidSpannerStatement function
 func TestIsValidSpannerStatement(t *testing.T) {
@@ -194,6 +214,14 @@ func TestIsValidSpannerStatement(t *testing.T) {
 		},
 	}
 
+	row, err := spanner.NewRow([]string{"statementValue"}, nil)
+	rowIter := mockRowIterator {
+		rows: []*spanner.Row{row},
+		cursor: 0,
+	}
+
+	spm := &SpannerMetadataAccessorImpl{}
+	
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
 			// Create a mock SpannerMetadataAccessorImpl (optional)

@@ -30,7 +30,7 @@ type SpannerMetadataAccessor interface {
 	// isValidSpannerStatement queries spanner and checks if statement evaluates to a data corresponding to given type.
 	isValidSpannerStatement(db string, defaultval string, datatype string) error
 	// isValidSpannerStatement(db string, defaultval string, ty string) error
-	getClient(ctx context.Context, db string) (*spanner.Client, error)
+	// getClient(ctx context.Context, db string) (*spanner.Client, error)
 }
 
 type SpannerMetadataAccessorImpl struct{}
@@ -47,15 +47,24 @@ func (spm *SpannerMetadataAccessorImpl) IsSpannerSupportedStatement(SpProjectId 
 		return true
 	}
 }
-func (spm *SpannerMetadataAccessorImpl) getClient(ctx context.Context, db string) (*spanner.Client, error) {
-	// return spannermetadataaccessorclient.GetOrCreateClient(ctx,db)
-	return spannermetadataclient.GetOrCreateClient(ctx,db)
-}
+// func getClient(ctx context.Context, db string) (*spanner.Client, error) {
+// 	// return spannermetadataaccessorclient.GetOrCreateClient(ctx,db)
+// 	return spannermetadataclient.GetOrCreateClient(ctx,db)
+// }
+
+// type rowIterator interface {
+// 	Stop()
+// 	Next() (*spanner.Row, error)
+// }
+// func querySpanner(ctx context.Context, client *spanner.Client, stmt spanner.Statement) (rowIterator) {
+// 	return client.Single().Query(ctx, stmt)
+// }
 
 func (spm *SpannerMetadataAccessorImpl) isValidSpannerStatement(db string, statement string, datatype string) error {
 	ctx := context.Background()
 	// spmClient, err := spannermetadataclient.GetOrCreateClient(ctx, db)
-	spmClient, err := spm.getClient(ctx, db)
+	// spmClient, err := getClient(ctx, db)
+	spmClient, err := spannermetadataclient.GetOrCreateClient(ctx, db)
 	if err != nil {
 		return err
 	}
@@ -66,6 +75,7 @@ func (spm *SpannerMetadataAccessorImpl) isValidSpannerStatement(db string, state
 	stmt := spanner.Statement{
 		SQL: "SELECT CAST(" + statement + " AS " + datatype + ") AS statementValue",
 	}
+	// iter := querySpanner(ctx, spmClient, stmt)
 	iter := spmClient.Single().Query(ctx, stmt)
 	defer iter.Stop()
 	for {
