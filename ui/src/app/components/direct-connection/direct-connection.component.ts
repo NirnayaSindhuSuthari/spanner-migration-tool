@@ -123,7 +123,6 @@ export class DirectConnectionComponent implements OnInit {
   }
   checkSpConfig() {
     if (this.isOfflineStatus) {
-    // if ((!this.spannerConfig.GCPProjectID && !this.spannerConfig.SpannerInstanceID) || (this.isOfflineStatus)) {
       const dialogRef = this.dialog.open(InfodialogComponent, {
         data: { message: "Please configure spanner project id and instance id to proceed otherwise default values will not be migrated", type: 'warning', title: 'Configure Spanner' },
         maxWidth: '500px',

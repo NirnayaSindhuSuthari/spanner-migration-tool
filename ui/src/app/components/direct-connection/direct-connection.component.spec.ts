@@ -13,6 +13,9 @@ import { MatInputModule } from '@angular/material/input'
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations'
 import { SnackbarService } from 'src/app/services/snackbar/snackbar.service'
 import { MatSnackBarModule } from '@angular/material/snack-bar'
+import { MatDialog, MatDialogModule } from '@angular/material/dialog'
+import { of } from 'rxjs'
+
 
 const appRoutes: Routes = [{ path: 'workspace', component: WorkspaceComponent }]
 
@@ -20,7 +23,10 @@ describe('DirectConnectionComponent', () => {
   let component: DirectConnectionComponent
   let fixture: ComponentFixture<DirectConnectionComponent>
   let btn: any
+  let dialogSpyObj: jasmine.SpyObj<MatDialog>;
+
   beforeEach(async () => {
+    dialogSpyObj = jasmine.createSpyObj('MatDialog', ['open']);
     await TestBed.configureTestingModule({
       declarations: [DirectConnectionComponent],
       imports: [
@@ -35,7 +41,11 @@ describe('DirectConnectionComponent', () => {
         BrowserAnimationsModule,
         MatSnackBarModule,
       ],
-      providers: [SnackbarService],
+      providers: [SnackbarService,
+        {
+          provide: MatDialog,
+          useValue: dialogSpyObj
+        }],
     }).compileComponents()
   })
 
@@ -128,4 +138,57 @@ describe('DirectConnectionComponent', () => {
     fixture.detectChanges()
     expect(btn.nativeElement.disabled).toBeFalsy()
   })
+
+  // it('should open dialog when offline and Spanner config is missing', () => {
+  //   component.isOfflineStatus = true;
+  //   // component.spannerConfig = { GCPProjectID: '', SpannerInstanceID: '' }; // Empty config
+  //   component.checkSpConfig();
+  //   expect(dialogSpyObj.open).toHaveBeenCalledWith(jasmine.any(Function), {
+  //     data: {
+  //       message: 'Please configure spanner project id and instance id to proceed otherwise default values will not be migrated',
+  //       type: 'warning',
+  //       title: 'Configure Spanner',
+  //     },
+  //     maxWidth: '500px',
+  //   });
+  //   expect(component.connectToDb).not.toHaveBeenCalled(); // Connection not called
+  // });
+
+  // it('should not open dialog when online or config is present', () => {
+  //   // Test case 1: Online and config present
+  //   component.isOfflineStatus = false;
+  //   // component.spannerConfig = { GCPProjectID: 'some-project', SpannerInstanceID: 'some-instance' };
+  //   component.checkSpConfig();
+  //   expect(dialogSpyObj.open).not.toHaveBeenCalled();
+  //   expect(component.connectToDb).toHaveBeenCalled(); // Connection called
+
+  //   // Test case 2: Offline but config present
+  //   component.isOfflineStatus = true;
+  //   // component.spannerConfig = { GCPProjectID: 'some-project', SpannerInstanceID: 'some-instance' };
+
+  //   component.checkSpConfig();
+
+  //   expect(dialogSpyObj.open).not.toHaveBeenCalled();
+  //   expect(component.connectToDb).toHaveBeenCalled(); // Connection called
+  // });
+
+  // it('should call connectToDb on dialog confirmation', () => {
+  //   component.isOfflineStatus = true;
+  //   // component.spannerConfig = { GCPProjectID: '', SpannerInstanceID: '' };
+  //   dialogRefSpy.afterClosed.and.returnValue(of(true)); // Mock dialog result as true (confirmed)
+  //   dialogSpyObj.open.and.returnValue(dialogRefSpy);
+  //   component.checkSpConfig();
+  //   expect(component.connectToDb).toHaveBeenCalled();
+  // });
+
+  // it('should not call connectToDb on dialog rejection', () => {
+  //   component.isOfflineStatus = true;
+  //   // component.spannerConfig = { GCPProjectID: '', SpannerInstanceID: '' };
+  //   dialogRefSpy.afterClosed.and.returnValue(of(false)); // Mock dialog result as false (rejected)
+  //   dialogSpyObj.open.and.returnValue(dialogRefSpy);
+
+  //   component.checkSpConfig();
+
+  //   expect(component.connectToDb).not.toHaveBeenCalled();
+  // });
 })

@@ -66,7 +66,7 @@ func (msads *MockDataFromSource) dataFromDatabase(ctx context.Context, migration
 	args := msads.Called(ctx, migrationProjectId, sourceProfile, targetProfile, config, conv, client, getInfo, dataFromDb, snapshotMigration)
 	return args.Get(0).(*writer.BatchWriter), args.Error(1)
 }
-func (msads *MockDataFromSource) dataFromDump(targetProfile profiles.TargetProfile, driver string, config writer.BatchWriterConfig, ioHelper *utils.IOStreams, client *sp.Client, conv *internal.Conv, dataOnly bool, processDump ProcessDumpByDialectInterface, populateDataConv PopulateDataConvInterface) (*writer.BatchWriter, error) {
+func (msads *MockDataFromSource) dataFromDump(driver string, config writer.BatchWriterConfig, ioHelper *utils.IOStreams, client *sp.Client, conv *internal.Conv, dataOnly bool, processDump ProcessDumpByDialectInterface, populateDataConv PopulateDataConvInterface) (*writer.BatchWriter, error) {
 	args := msads.Called(driver, config, ioHelper, client, conv, dataOnly, processDump, populateDataConv)
 	return args.Get(0).(*writer.BatchWriter), args.Error(1)
 }

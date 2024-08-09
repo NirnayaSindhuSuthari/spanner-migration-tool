@@ -28,7 +28,7 @@ type SpannerMetadataAccessor interface {
 	// IsSpannerSupportedDefaultStatement checks if the given statement is supported by Spanner.
 	IsSpannerSupportedDefaultStatement(SpProjectId string, SpInstanceId string, defaultval string, columntype string) bool
 	// isValidSpannerStatement queries spanner and checks if statement evaluates to a data corresponding to given type.
-	isValidSpannerStatement(db string, defaultval string, datatype string) error
+	// isValidSpannerStatement(db string, defaultval string, datatype string) error
 	// isValidSpannerStatement(db string, defaultval string, ty string) error
 	// getClient(ctx context.Context, db string) (*spanner.Client, error)
 }
